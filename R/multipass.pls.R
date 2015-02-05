@@ -1,3 +1,22 @@
+#'Wrapper for plsr function with multiple pass and outliers elmination
+#'
+#'
+#'@param formula a model formula. Most of the lm formula constructs are supported. See below.
+#'@param ncomp the number of components to include in the model (see below).
+#'@param data  an optional data frame with the data to fit the model from.
+#'@param validation	character. What kind of (internal) validation to use
+#'@param nbpass Number of passes
+#'@param out T value threshold for outlier elimination
+#'@return A list with the following components
+#'@return outliers A vector with outliers names as deduced from data row.names
+#'@return plsr the pls model object from the final pass
+#'@return ncomp the number of components to be further used
+#'@return pass a vector of same length as outliers indicating at which pass outliers were removed
+#'@author J.-F. Rami \email{rami@@cirad.fr}
+#'@examples
+#'\dontrun{
+#'}
+#'
 multipass.pls<-function(formula,ncomp,validation,data,nbpass,out=2.5){
   res.outliers<-NULL
   pass<-NULL
