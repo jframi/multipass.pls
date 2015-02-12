@@ -23,7 +23,8 @@ multipass.pls<-function(formula,ncomp,validation,data,nbpass,out=2.5){
   for (p in 1:nbpass){
     pls.trn<-plsr(formula,ncomp=ncomp, validation=validation,data=data,y=T)
     msepcv.trn<-MSEP(pls.trn,estimate=c("train","CV"))
-    ncomp.trn<-which.min(msepcv.trn$val["CV",,])-1 
+    #ncomp.trn<-which.min(msepcv.trn$val["CV",,])-1 
+    ncomp.trn<-min(which(round(c(msepcv.trn$val["CV",,][-1],0)-msepcv.trn$val["CV",,],3)==0))
     reg.final.trn<-plsr(formula,ncomp=ncomp.trn, validation=validation,data=data,y=T)
     trn.pred<-predict(reg.final.trn,ncomp=ncomp.trn)[,,1]
     rmsec<-RMSEP(reg.final.trn,estimate="train",ncomp=ncomp.trn,intercept=FALSE)
@@ -39,7 +40,8 @@ multipass.pls<-function(formula,ncomp,validation,data,nbpass,out=2.5){
   #Final pass
   pls.trn<-plsr(formula,ncomp=ncomp, validation=validation,data=data)
   msepcv.trn<-MSEP(pls.trn,estimate=c("train","CV"))
-  ncomp.trn<-which.min(msepcv.trn$val["CV",,])-1 
+  #ncomp.trn<-which.min(msepcv.trn$val["CV",,])-1 
+  ncomp.trn<-min(which(round(c(msepcv.trn$val["CV",,][-1],0)-msepcv.trn$val["CV",,],3)==0))
   reg.final.trn<-plsr(formula,ncomp=ncomp.trn, validation=validation,data=data,y=T)
   res<-vector(mode = "list", length = 4)
   names(res)<-c("outliers","plsr","ncomp", "pass")

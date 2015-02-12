@@ -33,7 +33,8 @@ multipass.cppls<-function(formula,ncomp,validation,data,nbpass,out=2.5,Y.add){
     pls.trn<-eval(mf)
     #pls.trn<-cppls(formula,data=data,Y.add=Yadd,ncomp=ncomp, validation=validation,y=T)
     msepcv.trn<-MSEP(pls.trn,estimate=c("train","CV"))
-    ncomp.trn<-which.min(msepcv.trn$val["CV",,])-1 
+    #ncomp.trn<-which.min(msepcv.trn$val["CV",,])-1 
+    ncomp.trn<-min(which(round(c(msepcv.trn$val["CV",,][-1],0)-msepcv.trn$val["CV",,],3)==0))
     mf$ncomp<-ncomp.trn
     reg.final.trn<-eval(mf)
     #reg.final.trn<-cppls(formula,data=data,Y.add=Yadd,ncomp=ncomp.trn, validation=validation,y=T)
@@ -53,7 +54,8 @@ multipass.cppls<-function(formula,ncomp,validation,data,nbpass,out=2.5,Y.add){
   pls.trn<-eval(mf)
   #pls.trn<-cppls(formula,data=data,Y.add=Yadd,ncomp=ncomp, validation=validation,y=T)
   msepcv.trn<-MSEP(pls.trn,estimate=c("train","CV"))
-  ncomp.trn<-which.min(msepcv.trn$val["CV",,])-1 
+  #ncomp.trn<-which.min(msepcv.trn$val["CV",,])-1
+  ncomp.trn<-min(which(round(c(msepcv.trn$val["CV",,][-1],0)-msepcv.trn$val["CV",,],3)==0))
   mf$ncomp<-ncomp.trn
   reg.final.trn<-eval(mf)
   #reg.final.trn<-cppls(formula,data=data,Y.add=Yadd,ncomp=ncomp.trn, validation=validation,y=T)
