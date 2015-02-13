@@ -19,12 +19,17 @@
 #'
 multipass.pls<-function(formula,ncomp,validation,data,nbpass,out=2.5){
   res.outliers<-NULL
+  pass.ncomp<-NULL
   pass<-NULL
   for (p in 1:nbpass){
     pls.trn<-plsr(formula,ncomp=ncomp, validation=validation,data=data,y=T)
     msepcv.trn<-MSEP(pls.trn,estimate=c("train","CV"))
-    #ncomp.trn<-which.min(msepcv.trn$val["CV",,])-1 
-    ncomp.trn<-min(which(round(c(msepcv.trn$val["CV",,][-1],0)-msepcv.trn$val["CV",,],3)==0))
+    cvder<-as.vector(smooth(sign(c(msepcv.trn$val["CV", , ][-1], 0) - msepcv.trn$val["CV", , ])))
+    if (any(cvder[-1]-cvder[-length(cvder)]==2)){
+      ncomp.trn<-which.min(msepcv.trn$val["CV",,])-1 
+    }else{
+      ncomp.trn <- min(which(round(c(msepcv.trn$val["CV", , ][-1], 0) - msepcv.trn$val["CV", , ], 3) == 0))      
+    }    
     reg.final.trn<-plsr(formula,ncomp=ncomp.trn, validation=validation,data=data,y=T)
     trn.pred<-predict(reg.final.trn,ncomp=ncomp.trn)[,,1]
     rmsec<-RMSEP(reg.final.trn,estimate="train",ncomp=ncomp.trn,intercept=FALSE)
@@ -36,12 +41,17 @@ multipass.pls<-function(formula,ncomp,validation,data,nbpass,out=2.5){
     data<-data[!row.names(data)%in%row.names(outliers.trn),]
     res.outliers<-c(res.outliers,row.names(outliers.trn))
     pass<-c(pass,rep(p,nrow(outliers.trn)))
+    pass.ncomp<-c(pass.ncomp,ncomp.trn)
   }
   #Final pass
   pls.trn<-plsr(formula,ncomp=ncomp, validation=validation,data=data)
   msepcv.trn<-MSEP(pls.trn,estimate=c("train","CV"))
-  #ncomp.trn<-which.min(msepcv.trn$val["CV",,])-1 
-  ncomp.trn<-min(which(round(c(msepcv.trn$val["CV",,][-1],0)-msepcv.trn$val["CV",,],3)==0))
+  cvder<-as.vector(smooth(sign(c(msepcv.trn$val["CV", , ][-1], 0) - msepcv.trn$val["CV", , ])))
+  if (any(cvder[-1]-cvder[-length(cvder)]==2)){
+    ncomp.trn<-which.min(msepcv.trn$val["CV",,])-1 
+  }else{
+    ncomp.trn <- min(which(round(c(msepcv.trn$val["CV", , ][-1], 0) - msepcv.trn$val["CV", , ], 3) == 0))      
+  }
   reg.final.trn<-plsr(formula,ncomp=ncomp.trn, validation=validation,data=data,y=T)
   res<-vector(mode = "list", length = 4)
   names(res)<-c("outliers","plsr","ncomp", "pass")
