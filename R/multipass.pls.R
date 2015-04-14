@@ -21,28 +21,30 @@ multipass.pls<-function(formula,ncomp,validation,data,nbpass,out=2.5){
   res.outliers<-NULL
   pass.ncomp<-NULL
   pass<-NULL
-  for (p in 1:nbpass){
-    pls.trn<-plsr(formula,ncomp=ncomp, validation=validation,data=data,y=T)
-    msepcv.trn<-MSEP(pls.trn,estimate=c("train","CV"))
-    cvder<-as.vector(smooth(sign(c(msepcv.trn$val["CV", , ][-1], 0) - msepcv.trn$val["CV", , ])))
-    if (any(cvder[-1]-cvder[-length(cvder)]==2)){
-      ncomp.trn<-which.min(msepcv.trn$val["CV",,])-1 
-    }else{
-      ncomp.trn <- min(which(round(c(msepcv.trn$val["CV", , ][-1], 0) - msepcv.trn$val["CV", , ], 3) == 0))      
-    }    
-    reg.final.trn<-plsr(formula,ncomp=ncomp.trn, validation=validation,data=data,y=T)
-    trn.pred<-predict(reg.final.trn,ncomp=ncomp.trn)[,,1]
-    rmsec<-RMSEP(reg.final.trn,estimate="train",ncomp=ncomp.trn,intercept=FALSE)
-    ## Recherche d'outliers
-    comp.trn<-data.frame(Lab.Value=reg.final.trn$y,Prediction=trn.pred)
-    Ts.trn<-abs(comp.trn$Prediction-comp.trn[,1])
-    Ts.trn[is.na(Ts.trn)]<-0
-    outliers.trn<-comp.trn[Ts.trn>=out*(rmsec$val[,,1]),]
-    if (nrow(outliers.trn)==0) break
-    data<-data[!row.names(data)%in%row.names(outliers.trn),]
-    res.outliers<-c(res.outliers,row.names(outliers.trn))
-    pass<-c(pass,rep(p,nrow(outliers.trn)))
-    pass.ncomp<-c(pass.ncomp,ncomp.trn)
+  if (nbpass>0){
+      for (p in 1:nbpass){
+        pls.trn<-plsr(formula,ncomp=ncomp, validation=validation,data=data,y=T)
+        msepcv.trn<-MSEP(pls.trn,estimate=c("train","CV"))
+        cvder<-as.vector(smooth(sign(c(msepcv.trn$val["CV", , ][-1], 0) - msepcv.trn$val["CV", , ])))
+        if (any(cvder[-1]-cvder[-length(cvder)]==2)){
+          ncomp.trn<-which.min(msepcv.trn$val["CV",,])-1 
+        }else{
+          ncomp.trn <- min(which(round(c(msepcv.trn$val["CV", , ][-1], 0) - msepcv.trn$val["CV", , ], 3) == 0))      
+        }    
+        reg.final.trn<-plsr(formula,ncomp=ncomp.trn, validation=validation,data=data,y=T)
+        trn.pred<-predict(reg.final.trn,ncomp=ncomp.trn)[,,1]
+        rmsec<-RMSEP(reg.final.trn,estimate="train",ncomp=ncomp.trn,intercept=FALSE)
+        ## Recherche d'outliers
+        comp.trn<-data.frame(Lab.Value=reg.final.trn$y,Prediction=trn.pred)
+        Ts.trn<-abs(comp.trn$Prediction-comp.trn[,1])
+        Ts.trn[is.na(Ts.trn)]<-0
+        outliers.trn<-comp.trn[Ts.trn>=out*(rmsec$val[,,1]),]
+        if (nrow(outliers.trn)==0) break
+        data<-data[!row.names(data)%in%row.names(outliers.trn),]
+        res.outliers<-c(res.outliers,row.names(outliers.trn))
+        pass<-c(pass,rep(p,nrow(outliers.trn)))
+        pass.ncomp<-c(pass.ncomp,ncomp.trn)
+      }
   }
   #Final pass
   pls.trn<-plsr(formula,ncomp=ncomp, validation=validation,data=data)
