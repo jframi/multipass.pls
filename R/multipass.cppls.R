@@ -46,12 +46,14 @@ multipass.cppls<-function(formula,ncomp,validation,data,nbpass,out=2.5,Y.add){
     Ts.trn <- abs(comp.trn$Prediction - comp.trn[, 1])
     Ts.trn[is.na(Ts.trn)] <- 0
     outliers.trn <- comp.trn[Ts.trn >= out * (rmsec$val[, , 1]), ]
+    if (nrow(outliers.trn)==0) break
     data <- data[!row.names(data) %in% row.names(outliers.trn), ]
     res.outliers <- c(res.outliers, row.names(outliers.trn))
     pass.ncomp<-c(pass.ncomp,ncomp.trn)
     pass <- c(pass, rep(p, nrow(outliers.trn)))
     mf$ncomp <- ncomp
   }
+  mf$ncomp <- ncomp
   pls.trn <- eval(mf)
   msepcv.trn <- MSEP(pls.trn, estimate = c("train", "CV"))
   cvder<-as.vector(smooth(sign(c(msepcv.trn$val["CV", , ][-1], 0) - msepcv.trn$val["CV", , ])))
@@ -64,6 +66,9 @@ multipass.cppls<-function(formula,ncomp,validation,data,nbpass,out=2.5,Y.add){
   reg.final.trn <- eval(mf)
   res <- vector(mode = "list", length = 5)
   names(res) <- c("outliers", "plsr", "ncomp", "pass","pass.ncomp")
+  if (is.null(res.outliers)) res.outliers<-NA
+  if (is.null(pass.ncomp)) pass.ncomp<-NA
+  
   res[[1]] <- res.outliers
   res[[2]] <- reg.final.trn
   res[[3]] <- ncomp.trn
