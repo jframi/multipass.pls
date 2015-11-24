@@ -1,9 +1,9 @@
 Package: multipass.pls
 Type: Package
-Title: Wrapper functions to plr and cppls functions to run multiple passes and outlier elimination
+Title: Wrapper functions to pls and cppls functions to run multiple passes and outlier elimination
 Version: 1.0
 Date: 2015-02-05
 Author: J-F Rami
 Maintainer: J-F Rami <rami@cirad.fr>
-Description: Wrapper functions to plr and cppls functions to run multiple passes and outlier elimination
+Description: Wrapper functions to pls and cppls functions to run multiple passes and outlier elimination
 License: GPL (>= 2)
